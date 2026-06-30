@@ -1,6 +1,6 @@
-import { memo, useCallback } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from './Button';
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChangeEvent, memo, useCallback } from "react";
+import { Button } from "./Button";
 
 interface PaginatorProps {
   page: number;
@@ -32,7 +32,7 @@ export const Paginator = memo(function Paginator({
   }, [page, totalPages, onPageChange]);
 
   const handleJump = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    (e: ChangeEvent<HTMLInputElement>) => {
       const p = parseInt(e.target.value, 10);
       if (p >= 1 && p <= totalPages) onPageChange(p);
     },
@@ -42,7 +42,9 @@ export const Paginator = memo(function Paginator({
   return (
     <div className="flex flex-col gap-3 border-t border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-2">
-        <label className="text-xs font-medium text-slate-600">Items por página:</label>
+        <label className="text-xs font-medium text-slate-600">
+          Items por página:
+        </label>
         <select
           value={limit}
           onChange={(e) => onLimitChange(parseInt(e.target.value, 10))}
@@ -58,7 +60,7 @@ export const Paginator = memo(function Paginator({
 
       <div className="flex items-center gap-2 text-xs text-slate-600">
         <span>
-          {total === 0 ? 'Sin resultados' : `${start}-${end} de ${total}`}
+          {total === 0 ? "Sin resultados" : `${start}-${end} de ${total}`}
         </span>
       </div>
 
@@ -82,7 +84,9 @@ export const Paginator = memo(function Paginator({
             onChange={handleJump}
             className="w-12 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-center text-xs text-slate-700 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
           />
-          <span className="text-xs font-medium text-slate-600">de {totalPages}</span>
+          <span className="text-xs font-medium text-slate-600">
+            de {totalPages}
+          </span>
         </div>
 
         <Button

@@ -14,8 +14,10 @@ export interface ApiResponse<T> {
 }
 
 export interface PaginatedResponse<T> {
-  items: T[];
+  data: T[];
   total: number;
+  page: number;
+  limit: number;
 }
 
 export interface ApiError {

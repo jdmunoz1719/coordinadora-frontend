@@ -1,5 +1,5 @@
-import { memo } from 'react';
-import { Clock, ShieldAlert } from 'lucide-react';
+import { Clock, ShieldAlert } from "lucide-react";
+import { memo } from "react";
 
 interface HeaderProps {
   title?: string;
@@ -9,8 +9,8 @@ interface HeaderProps {
 }
 
 export const Header = memo(function Header({
-  title = 'Dashboard Operacional',
-  subtitle = 'Visión en tiempo real de incidentes, alertas y eventos',
+  title = "Dashboard Operacional",
+  subtitle = "Visión en tiempo real de incidentes, alertas y eventos",
   lastUpdated,
   wsConnected = false,
 }: HeaderProps) {
@@ -23,22 +23,30 @@ export const Header = memo(function Header({
 
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-lg font-bold text-slate-900">{title}</h1>
-          <p className="hidden truncate text-xs text-slate-500 sm:block">{subtitle}</p>
+          <p className="hidden truncate text-xs text-slate-500 sm:block">
+            {subtitle}
+          </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className={`hidden sm:flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${wsConnected ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+          <div
+            className={`hidden sm:flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${wsConnected ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600"}`}
+          >
             <span className="relative flex h-2 w-2">
-              {wsConnected && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />}
-              <span className={`relative inline-flex h-2 w-2 rounded-full ${wsConnected ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+              {wsConnected && (
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              )}
+              <span
+                className={`relative inline-flex h-2 w-2 rounded-full ${wsConnected ? "bg-emerald-500" : "bg-slate-400"}`}
+              />
             </span>
-            {wsConnected ? 'En vivo' : 'Desconectado'}
+            {wsConnected ? "En vivo" : "Desconectado"}
           </div>
 
           {lastUpdated && (
             <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-400">
               <Clock size={13} />
-              {new Date(lastUpdated).toLocaleTimeString('es-ES')}
+              {new Date(lastUpdated).toLocaleTimeString("es-ES")}
             </div>
           )}
         </div>

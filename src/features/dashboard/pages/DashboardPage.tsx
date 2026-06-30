@@ -1,195 +1,78 @@
-import { Button } from "@/shared/components/Button";
-import { FloatingRefreshButton } from "@shared/components/FloatingRefreshButton";
 import {
-  selectAlerts,
   selectError,
-  selectEventsByApplication,
-  selectEventsBySeverity,
-  selectIncidents,
   selectLastUpdated,
-  selectMetrics,
   useDashboardStore,
-} from "@store/dashboardStore";
-import {
-  AlertTriangle,
-  BellRing,
-  CheckCircle2,
-  FolderOpen,
-  RefreshCw
-} from "lucide-react";
-import { useCallback } from "react";
-import { AlertFilters, AlertsTable } from "../components/AlertsTab";
-import { EventsByApplicationChart, EventsBySeverityChart } from "../components/ResumenTab";
-import { EventsFilters, EventsTable } from "../components/EventsTab";
-import { Header } from "../components/Header";
-import { IncidentsFilters, IncidentsTable } from "../components/IncidentsTab";
-import { MetricsCard } from "../components/MetricsCard";
-import { TabBar } from "../components/TabBar";
-import { useTabManager } from "../hooks/useTabManager";
+} from '@dashboard/store/dashboardStore';
+import { wsManager } from '@services/websocket/WebSocketManager';
+import { FloatingRefreshButton } from '@shared/components/FloatingRefreshButton';
+import { useEffect, useRef, useState } from 'react';
+import { AlertsTabContainer } from '../components/AlertsTab';
+import { EventsTabContainer } from '../components/EventsTab';
+import { Header } from '../components/Header';
+import { IncidentsTabContainer } from '../components/IncidentsTab';
+import { EventsByApplicationChart, EventsBySeverityChart, MetricsSummaryCards } from '../components/ResumenTab';
+import type { TabId } from '../components/TabBar';
+import { TabBar } from '../components/TabBar';
+import { useResumenTab } from '../hooks';
 
 export function DashboardPage() {
-  const {
-    activeTab,
-    switchTab,
-    isLoading,
-    wsConnected,
-    counts,
-    pagination,
-    onPageChange,
-    onLimitChange,
-    alertFilters,
-    onAlertFiltersChange,
-    incidentFilters,
-    onIncidentFiltersChange,
-    eventFilters,
-    onEventFiltersChange,
-    refresh,
-  } = useTabManager();
+  const [activeTab, setActiveTab] = useState<TabId>('resumen');
+  const [wsConnected, setWsConnected] = useState(false);
 
-  const incidents = useDashboardStore(selectIncidents);
-  const alerts = useDashboardStore(selectAlerts);
-  const events = useDashboardStore((s) => s.events || []);
-  const metrics = useDashboardStore(selectMetrics);
-  const eventsByApplication = useDashboardStore(selectEventsByApplication);
-  const eventsBySeverity = useDashboardStore(selectEventsBySeverity);
+  const { refreshSignal, refresh } = useResumenTab();
+
   const error = useDashboardStore(selectError);
   const lastUpdated = useDashboardStore(selectLastUpdated);
 
-  const handleRefresh = useCallback(async () => await refresh(), [refresh]);
+  const wsInitRef = useRef(false);
+
+  useEffect(() => {
+    if (wsInitRef.current) return;
+    wsInitRef.current = true;
+
+    const onConnected = () => setWsConnected(true);
+    const onDisconnected = () => setWsConnected(false);
+
+    wsManager
+      .connect()
+      .then(() => {
+        setWsConnected(true);
+        wsManager.subscribeToChannel('dashboard');
+        wsManager.onConnected(onConnected);
+        wsManager.onDisconnected(onDisconnected);
+      })
+      .catch(() => setWsConnected(false));
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-100">
       <Header lastUpdated={lastUpdated} wsConnected={wsConnected} />
 
-      <TabBar active={activeTab} counts={counts} onSelect={switchTab} />
+      <TabBar active={activeTab} counts={{ resumen: 0, incidentes: 0, alertas: 0, eventos: 0 }} onSelect={setActiveTab} />
 
       <main className="mx-auto w-full max-w-7xl flex-1 space-y-6 px-4 py-6 sm:px-6 lg:px-8">
         {error && (
           <div className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 px-5 py-4">
-            <AlertTriangle size={20} className="shrink-0 text-red-600" />
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-red-800">
-                Error al cargar datos
-              </p>
-              <p className="text-sm text-red-600 truncate">{error}</p>
-            </div>
-            <Button
-              variant="danger"
-              size="sm"
-              icon={<RefreshCw size={14} />}
-              onClick={handleRefresh}
-            >
-              Reintentar
-            </Button>
+            <p className="font-semibold text-red-800">Error: {error}</p>
           </div>
         )}
 
-        {activeTab === "resumen" && (
+        {activeTab === 'resumen' && (
           <>
-            <FloatingRefreshButton
-              onClick={handleRefresh}
-              isLoading={isLoading}
-            />
-            {metrics ? (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <MetricsCard
-                  label="Incidentes Abiertos"
-                  value={metrics.totalOpenIncidents}
-                  icon={<FolderOpen size={22} />}
-                  color="red"
-                />
-                <MetricsCard
-                  label="Incidentes Resueltos"
-                  value={metrics.totalResolvedIncidents}
-                  icon={<CheckCircle2 size={22} />}
-                  color="green"
-                />
-                <MetricsCard
-                  label="Alertas Generadas"
-                  value={metrics.totalAlerts}
-                  icon={<BellRing size={22} />}
-                  color="blue"
-                />
-              </div>
-            ) : isLoading ? null : null}
+            <FloatingRefreshButton onClick={refresh} isLoading={false} />
+            <MetricsSummaryCards refreshSignal={refreshSignal} />
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              <EventsByApplicationChart
-                data={eventsByApplication}
-                isLoading={isLoading}
-              />
-              <EventsBySeverityChart
-                data={eventsBySeverity}
-                isLoading={isLoading}
-              />
+              <EventsByApplicationChart refreshSignal={refreshSignal} />
+              <EventsBySeverityChart refreshSignal={refreshSignal} />
             </div>
           </>
         )}
 
-        {activeTab === "incidentes" && (
-          <>
-            <FloatingRefreshButton
-              onClick={handleRefresh}
-              isLoading={isLoading}
-            />
-            <IncidentsFilters
-              filters={incidentFilters}
-              onFilterChange={onIncidentFiltersChange}
-            />
-            <IncidentsTable
-              incidents={incidents}
-              isLoading={isLoading}
-              page={pagination.page}
-              limit={pagination.limit}
-              total={pagination.total}
-              onPageChange={onPageChange}
-              onLimitChange={onLimitChange}
-            />
-          </>
-        )}
+        {activeTab === 'incidentes' && <IncidentsTabContainer />}
 
-        {activeTab === "alertas" && (
-          <>
-            <FloatingRefreshButton
-              onClick={handleRefresh}
-              isLoading={isLoading}
-            />
-            <AlertFilters
-              filters={alertFilters}
-              onFilterChange={onAlertFiltersChange}
-            />
-            <AlertsTable
-              alerts={alerts}
-              isLoading={isLoading}
-              page={pagination.page}
-              limit={pagination.limit}
-              total={pagination.total}
-              onPageChange={onPageChange}
-              onLimitChange={onLimitChange}
-            />
-          </>
-        )}
+        {activeTab === 'alertas' && <AlertsTabContainer />}
 
-        {activeTab === "eventos" && (
-          <>
-            <FloatingRefreshButton
-              onClick={handleRefresh}
-              isLoading={isLoading}
-            />
-            <EventsFilters
-              filters={eventFilters}
-              onFilterChange={onEventFiltersChange}
-            />
-            <EventsTable
-              events={events}
-              isLoading={isLoading}
-              page={pagination.page}
-              limit={pagination.limit}
-              total={pagination.total}
-              onPageChange={onPageChange}
-              onLimitChange={onLimitChange}
-            />
-          </>
-        )}
+        {activeTab === 'eventos' && <EventsTabContainer />}
       </main>
     </div>
   );

@@ -1,17 +1,14 @@
-import { memo, useState, useCallback } from 'react';
-import { AlertTriangle, CheckCircle2, RefreshCw } from 'lucide-react';
-import { Card } from '@shared/components/Card';
-import { SeverityBadge, StatusBadge } from '@shared/components/Badge';
-import { EmptyState } from '@shared/components/EmptyState';
-import { LoadingSpinner } from '@shared/components/LoadingSpinner';
-import { Paginator } from '@shared/components/Paginator';
-import { ChangeStatusModal } from './ChangeStatusModal';
-import { dashboardService } from '@services/dashboard/dashboardService';
-import { useDashboardStore } from '@store/dashboardStore';
-import type { Incident } from '@types/dashboard.types';
+﻿import { Incident } from "@incidents/interfaces/incident.interface";
+import { SeverityBadge, StatusBadge } from "@shared/components/Badge";
+import { Card } from "@shared/components/Card";
+import { EmptyState } from "@shared/components/EmptyState";
+import { LoadingSpinner } from "@shared/components/LoadingSpinner";
+import { Paginator } from "@shared/components/Paginator";
+import { AlertTriangle, CheckCircle2 } from "lucide-react";
+import { memo } from "react";
 
 interface IncidentsTableProps {
-  incidents: Incident[];
+  incidents: Incident.ItemList[];
   isLoading?: boolean;
   page: number;
   limit: number;
@@ -20,8 +17,8 @@ interface IncidentsTableProps {
   onLimitChange: (limit: number) => void;
 }
 
-const TH = 'px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500';
-const CLOSED_STATUSES = new Set(['CLOSED']);
+const TH =
+  "px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500";
 
 export const IncidentsTable = memo(function IncidentsTable({
   incidents,
@@ -32,16 +29,6 @@ export const IncidentsTable = memo(function IncidentsTable({
   onPageChange,
   onLimitChange,
 }: IncidentsTableProps) {
-  const [selected, setSelected] = useState<Incident | null>(null);
-
-  const handleConfirm = useCallback(
-    async (incidentId: string, newStatus: string, reason: string) => {
-      const updated = await dashboardService.updateIncidentStatus(incidentId, newStatus, reason);
-      useDashboardStore.getState().updateIncident(updated);
-    },
-    [],
-  );
-
   return (
     <>
       <Card padding="none" className="overflow-hidden flex flex-col">
@@ -72,39 +59,29 @@ export const IncidentsTable = memo(function IncidentsTable({
                     <th className={TH}>Severidad</th>
                     <th className={TH}>Estado</th>
                     <th className={TH}>Creado</th>
-                    <th className={TH + ' w-36'}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                   {incidents.map((incident) => {
-                    const canChange = !CLOSED_STATUSES.has(incident.statusName?.toUpperCase() ?? '');
                     return (
-                      <tr key={incident.id} className="text-sm transition-colors hover:bg-slate-50">
+                      <tr
+                        key={incident.id}
+                        className="text-sm transition-colors hover:bg-slate-50"
+                      >
                         <td className="max-w-xs truncate px-4 py-3 font-medium text-slate-900">
                           {incident.title}
                         </td>
                         <td className="px-4 py-3 text-slate-600">
-                          {incident.applicationName ?? 'Desconocida'}
+                          {incident.applicationName ?? "Desconocida"}
                         </td>
                         <td className="px-4 py-3">
-                          <SeverityBadge value={incident.severityName} />
+                          <SeverityBadge value={incident.severityName} color={incident.severityColor} />
                         </td>
                         <td className="px-4 py-3">
                           <StatusBadge value={incident.statusName} />
                         </td>
                         <td className="px-4 py-3 text-xs text-slate-400">
-                          {new Date(incident.createdAt).toLocaleString('es-ES')}
-                        </td>
-                        <td className="px-4 py-3">
-                          {canChange && (
-                            <button
-                              onClick={() => setSelected(incident)}
-                              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
-                            >
-                              <RefreshCw size={12} />
-                              Cambiar estado
-                            </button>
-                          )}
+                          {new Date(incident.createdAt).toLocaleString("es-ES")}
                         </td>
                       </tr>
                     );
@@ -115,18 +92,14 @@ export const IncidentsTable = memo(function IncidentsTable({
           )}
         </div>
 
-        <Paginator page={page} limit={limit} total={total} onPageChange={onPageChange} onLimitChange={onLimitChange} />
-      </Card>
-
-      {selected && (
-        <ChangeStatusModal
-          incidentId={selected.id}
-          incidentTitle={selected.title}
-          currentStatus={selected.statusName ?? 'OPEN'}
-          onConfirm={handleConfirm}
-          onClose={() => setSelected(null)}
+        <Paginator
+          page={page}
+          limit={limit}
+          total={total}
+          onPageChange={onPageChange}
+          onLimitChange={onLimitChange}
         />
-      )}
+      </Card>
     </>
   );
 });

@@ -1,9 +1,9 @@
-import { memo } from 'react';
-import { Loader2 } from 'lucide-react';
-import { MESSAGES } from '@config/constants';
+import { MESSAGES } from "@config/constants";
+import { Loader2 } from "lucide-react";
+import { memo } from "react";
 
 interface LoadingSpinnerProps {
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
   message?: string;
   fullPage?: boolean;
 }
@@ -11,7 +11,9 @@ interface LoadingSpinnerProps {
 const SIZES = { sm: 18, md: 32, lg: 48 } as const;
 
 export const LoadingSpinner = memo(function LoadingSpinner({
-  size = 'md', message = MESSAGES.LOADING, fullPage = false,
+  size = "md",
+  message = MESSAGES.LOADING,
+  fullPage = false,
 }: LoadingSpinnerProps) {
   const content = (
     <div className="flex flex-col items-center gap-3">
@@ -28,5 +30,9 @@ export const LoadingSpinner = memo(function LoadingSpinner({
     );
   }
 
-  return <div className="flex min-h-32 items-center justify-center py-8">{content}</div>;
+  return (
+    <div className="flex min-h-32 items-center justify-center py-8">
+      {content}
+    </div>
+  );
 });

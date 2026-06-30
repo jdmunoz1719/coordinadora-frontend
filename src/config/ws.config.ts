@@ -2,7 +2,7 @@
  * Configuración centralizada de WebSockets
  */
 
-import type { WebSocketConfig } from '@types/api.types';
+import type { WebSocketConfig } from '@/api/api.interface';
 
 const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3001';
 const WS_RECONNECT_INTERVAL = parseInt(
@@ -28,11 +28,9 @@ export const WS_MESSAGE_TYPES = {
   // Eventos de incidentes
   INCIDENT_CREATED: 'incident:created',
   INCIDENT_UPDATED: 'incident:updated',
-  INCIDENT_TRANSITIONED: 'incident:transitioned',
 
   // Eventos de alertas
   ALERT_CREATED: 'alert:created',
-  ALERT_UPDATED: 'alert:updated',
 
   // Eventos de conexión
   CONNECTED: 'connected',
@@ -46,6 +44,7 @@ export const WS_MESSAGE_TYPES = {
 export const WS_CHANNELS = {
   DASHBOARD: 'dashboard',
   INCIDENTS: 'incidents',
+  EVENTS: 'events',
   ALERTS: 'alerts',
 } as const;
 

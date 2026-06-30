@@ -1,55 +1,18 @@
-/**
- * Configuración centralizada de API HTTP
- * Reutilizable en toda la aplicación
- */
+import type { HttpClientConfig } from "@/api/api.interface";
 
-import type { HttpClientConfig } from '@types/api.types';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
-const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT || '10000', 10);
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT || "10000", 10);
 
 export const apiConfig: HttpClientConfig = {
   baseURL: API_BASE_URL,
   timeout: API_TIMEOUT,
   headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
+    "Content-Type": "application/json",
+    Accept: "application/json",
   },
 };
 
-/**
- * Endpoints del API (centralizados para fácil mantenimiento)
- */
-export const API_ENDPOINTS = {
-  // Incidentes
-  incidents: {
-    list: '/incidents',
-    getById: (id: string) => `/incidents/${id}`,
-    create: '/incidents',
-    transition: (id: string) => `/incidents/${id}/transition`,
-    updateStatus: (id: string) => `/incidents/${id}/update-status`,
-  },
-
-  // Alertas
-  alerts: {
-    list: '/alerts',
-    getById: (id: string) => `/alerts/${id}`,
-  },
-
-  // Eventos
-  events: {
-    list: '/events',
-  },
-
-  // Métricas (si existe en el API)
-  metrics: {
-    dashboard: '/metrics/dashboard',
-  },
-} as const;
-
-/**
- * Códigos de error HTTP estándar
- */
 export const HTTP_STATUS_CODES = {
   OK: 200,
   CREATED: 201,
@@ -78,7 +41,7 @@ export const RETRY_CONFIG = {
  * Timeouts específicos por tipo de request (en ms)
  */
 export const TIMEOUTS = {
-  short: 5000,      // Queries rápidas
-  normal: 10000,    // Default
-  long: 30000,      // Queries lentas (reportes, etc.)
+  short: 5000, // Queries rápidas
+  normal: 10000, // Default
+  long: 30000, // Queries lentas (reportes, etc.)
 } as const;

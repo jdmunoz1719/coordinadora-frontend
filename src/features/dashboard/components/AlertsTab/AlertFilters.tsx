@@ -1,12 +1,11 @@
-import { memo } from 'react';
-import { FilterPanel, FilterField } from '@shared/components/FilterPanel';
-import { useDashboardStore } from '@store/dashboardStore';
+﻿import { useDashboardStore } from "@dashboard/store/dashboardStore";
+import { FilterField, FilterPanel } from "@shared/components/FilterPanel";
+import { memo } from "react";
 
 export interface AlertFiltersState {
-  severity?: number;
+  severityId?: number;
   applicationId?: string;
   statusId?: number;
-  eventTypeId?: number;
 }
 
 interface AlertFiltersProps {
@@ -21,32 +20,32 @@ export const AlertFilters = memo(function AlertFilters({
   const applications = useDashboardStore((s) => s.applications);
   const severityLevels = useDashboardStore((s) => s.severityLevels);
   const alertStatuses = useDashboardStore((s) => s.alertStatuses);
-  const eventTypes = useDashboardStore((s) => s.eventTypes);
 
   const fields: FilterField[] = [
     {
-      key: 'severity',
-      label: 'Todas las severidades',
+      key: "severityId",
+      title: "Severidad",
+      label: "Todas",
       options: severityLevels?.map((s) => ({ id: s.id, name: s.name })),
     },
     {
-      key: 'applicationId',
-      label: 'Todas las aplicaciones',
+      key: "applicationId",
+      title: "Aplicación",
+      label: "Todas",
       options: applications?.map((a) => ({ id: a.id, name: a.name })),
     },
     {
-      key: 'statusId',
-      label: 'Todos los estados',
+      key: "statusId",
+      title: "Estado",
+      label: "Todos",
       options: alertStatuses?.map((s) => ({ id: s.id, name: s.name })),
-    },
-    {
-      key: 'eventTypeId',
-      label: 'Todos los eventos',
-      options: eventTypes?.map((e) => ({ id: e.id, name: e.name })),
     },
   ];
 
-  const handleFilterChange = (key: string, value: string | number | undefined) => {
+  const handleFilterChange = (
+    key: string,
+    value: string | number | undefined,
+  ) => {
     onFilterChange({
       ...filters,
       [key]: value,
@@ -57,7 +56,11 @@ export const AlertFilters = memo(function AlertFilters({
     onFilterChange({});
   };
 
-  const hasFilters = !!(filters.severity || filters.applicationId || filters.statusId || filters.eventTypeId);
+  const hasFilters = !!(
+    filters.severityId ||
+    filters.applicationId ||
+    filters.statusId
+  );
 
   return (
     <FilterPanel

@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { PAGINATION } from '@config/constants';
+import { PAGINATION } from "@config/constants";
+import { useCallback, useState } from "react";
 
 interface UsePaginationOptions {
   defaultPage?: number;
@@ -7,8 +7,12 @@ interface UsePaginationOptions {
 }
 
 export function usePagination(options?: UsePaginationOptions) {
-  const [page, setPage] = useState(options?.defaultPage ?? PAGINATION.DEFAULT_PAGE);
-  const [limit, setLimit] = useState(options?.defaultLimit ?? PAGINATION.DEFAULT_LIMIT);
+  const [page, setPage] = useState(
+    options?.defaultPage ?? PAGINATION.DEFAULT_PAGE,
+  );
+  const [limit, setLimit] = useState(
+    options?.defaultLimit ?? PAGINATION.DEFAULT_LIMIT,
+  );
 
   const handlePageChange = useCallback((newPage: number) => {
     setPage(newPage);

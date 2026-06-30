@@ -1,13 +1,12 @@
-import { memo } from 'react';
-import { FilterPanel, FilterField } from '@shared/components/FilterPanel';
-import { useDashboardStore } from '@store/dashboardStore';
+﻿import { useDashboardStore } from "@dashboard/store/dashboardStore";
+import { FilterField, FilterPanel } from "@shared/components/FilterPanel";
+import { ChangeEvent, memo } from "react";
 
 export interface EventsFiltersState {
   applicationId?: string;
-  severity?: number;
+  severityId?: number;
   eventTypeId?: number;
-  dateFrom?: string;
-  dateTo?: string;
+  occurredAt?: string;
 }
 
 interface EventsFiltersProps {
@@ -25,81 +24,68 @@ export const EventsFilters = memo(function EventsFilters({
 
   const fields: FilterField[] = [
     {
-      key: 'applicationId',
-      label: 'Todas las aplicaciones',
+      key: "applicationId",
+      title: "Aplicación",
+      label: "Todas",
       options: applications?.map((a) => ({ id: a.id, name: a.name })),
     },
     {
-      key: 'severity',
-      label: 'Todas las severidades',
+      key: "severityId",
+      title: "Severidad",
+      label: "Todas",
       options: severityLevels?.map((s) => ({ id: s.id, name: s.name })),
     },
     {
-      key: 'eventTypeId',
-      label: 'Todos los tipos de evento',
+      key: "eventTypeId",
+      title: "Tipo de evento",
+      label: "Todos",
       options: eventTypes?.map((e) => ({ id: e.id, name: e.name })),
     },
   ];
 
-  const handleFilterChange = (key: string, value: string | number | undefined) => {
+  const handleFilterChange = (
+    key: string,
+    value: string | number | undefined,
+  ) => {
     onFilterChange({
       ...filters,
       [key]: value,
     });
   };
 
-  const handleDateFromChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleOccurredAtChange = (e: ChangeEvent<HTMLInputElement>) => {
     onFilterChange({
       ...filters,
-      dateFrom: e.target.value || undefined,
-    });
-  };
-
-  const handleDateToChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onFilterChange({
-      ...filters,
-      dateTo: e.target.value || undefined,
+      occurredAt: e.target.value || undefined,
     });
   };
 
   const hasFilters = !!(
     filters.applicationId ||
-    filters.severity ||
+    filters.severityId ||
     filters.eventTypeId ||
-    filters.dateFrom ||
-    filters.dateTo
+    filters.occurredAt
   );
 
-  const handleClear = () => {
-    onFilterChange({});
-  };
+  const handleClear = () => onFilterChange({});
 
   return (
-    <div className="space-y-4 mb-4">
-      <FilterPanel
-        fields={fields}
-        values={filters}
-        onFilterChange={handleFilterChange}
-        onClear={handleClear}
-        hasFilters={hasFilters}
-      />
-
-      <div className="flex flex-wrap gap-3 items-center">
+    <FilterPanel
+      fields={fields}
+      values={filters}
+      onFilterChange={handleFilterChange}
+      onClear={handleClear}
+      hasFilters={hasFilters}
+    >
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-slate-500 px-0.5">Fecha</label>
         <input
-          type="datetime-local"
-          value={filters.dateFrom || ''}
-          onChange={handleDateFromChange}
-          placeholder="Desde"
-          className="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700"
-        />
-        <input
-          type="datetime-local"
-          value={filters.dateTo || ''}
-          onChange={handleDateToChange}
-          placeholder="Hasta"
-          className="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700"
+          type="date"
+          value={filters.occurredAt || ""}
+          onChange={handleOccurredAtChange}
+          className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700 sm:w-auto"
         />
       </div>
-    </div>
+    </FilterPanel>
   );
 });

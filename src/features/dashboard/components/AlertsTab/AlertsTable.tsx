@@ -1,16 +1,16 @@
-import { memo } from 'react';
-import { BellRing, BellOff } from 'lucide-react';
-import { Card } from '@shared/components/Card';
-import { SeverityBadge } from '@shared/components/Badge';
-import { Paginator } from '@shared/components/Paginator';
-import { EmptyState } from '@shared/components/EmptyState';
-import { LoadingSpinner } from '@shared/components/LoadingSpinner';
-import type { Alert } from '@types/dashboard.types';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+﻿import { Alert } from "@alerts/interfaces/alert.interface";
+import { SeverityBadge } from "@shared/components/Badge";
+import { Card } from "@shared/components/Card";
+import { EmptyState } from "@shared/components/EmptyState";
+import { LoadingSpinner } from "@shared/components/LoadingSpinner";
+import { Paginator } from "@shared/components/Paginator";
+import { formatDistanceToNow } from "date-fns";
+import { es } from "date-fns/locale";
+import { BellOff, BellRing } from "lucide-react";
+import { memo } from "react";
 
 interface AlertsTableProps {
-  alerts: Alert[];
+  alerts: Alert.ItemList[];
   isLoading?: boolean;
   page: number;
   limit: number;
@@ -19,7 +19,8 @@ interface AlertsTableProps {
   onLimitChange: (limit: number) => void;
 }
 
-const th = 'px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500';
+const th =
+  "px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500";
 
 export const AlertsTable = memo(function AlertsTable({
   alerts,
@@ -62,20 +63,26 @@ export const AlertsTable = memo(function AlertsTable({
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {alerts.map((alert) => (
-                  <tr key={alert.id} className="hover:bg-slate-50 transition-colors text-sm">
+                  <tr
+                    key={alert.id}
+                    className="hover:bg-slate-50 transition-colors text-sm"
+                  >
                     <td className="px-4 py-3">
                       <SeverityBadge value={alert.severityName} />
                     </td>
                     <td className="px-4 py-3 text-sm font-medium text-slate-700">
-                      {alert.applicationName ?? 'Desconocida'}
+                      {alert.applicationName ?? "Desconocida"}
                     </td>
                     <td className="px-4 py-3">
                       <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600">
-                        {alert.statusName ?? 'PENDING'}
+                        {alert.statusName ?? "PENDING"}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-xs text-slate-400">
-                      {formatDistanceToNow(new Date(alert.createdAt), { addSuffix: true, locale: es })}
+                      {formatDistanceToNow(new Date(alert.createdAt), {
+                        addSuffix: true,
+                        locale: es,
+                      })}
                     </td>
                   </tr>
                 ))}
@@ -85,7 +92,13 @@ export const AlertsTable = memo(function AlertsTable({
         )}
       </div>
 
-      <Paginator page={page} limit={limit} total={total} onPageChange={onPageChange} onLimitChange={onLimitChange} />
+      <Paginator
+        page={page}
+        limit={limit}
+        total={total}
+        onPageChange={onPageChange}
+        onLimitChange={onLimitChange}
+      />
     </Card>
   );
 });

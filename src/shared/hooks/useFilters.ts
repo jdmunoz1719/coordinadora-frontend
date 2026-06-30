@@ -1,18 +1,23 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from "react";
 
 export interface FilterConfig {
   [key: string]: string | number | undefined;
 }
 
-export function useFilters<T extends FilterConfig>(initialFilters: T = {} as T) {
+export function useFilters<T extends FilterConfig>(
+  initialFilters: T = {} as T,
+) {
   const [filters, setFilters] = useState<T>(initialFilters);
 
-  const updateFilter = useCallback((key: keyof T, value: string | number | undefined) => {
-    setFilters((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  }, []);
+  const updateFilter = useCallback(
+    (key: keyof T, value: string | number | undefined) => {
+      setFilters((prev) => ({
+        ...prev,
+        [key]: value,
+      }));
+    },
+    [],
+  );
 
   const setFilters_ = useCallback((newFilters: Partial<T>) => {
     setFilters((prev) => ({
@@ -25,7 +30,9 @@ export function useFilters<T extends FilterConfig>(initialFilters: T = {} as T) 
     setFilters(initialFilters);
   }, [initialFilters]);
 
-  const hasFilters = Object.values(filters).some((v) => v !== undefined && v !== '');
+  const hasFilters = Object.values(filters).some(
+    (v) => v !== undefined && v !== "",
+  );
 
   return {
     filters,

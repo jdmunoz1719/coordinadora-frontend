@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ImageOff } from 'lucide-react';
+import { ImageOff } from "lucide-react";
+import { FC, useState } from "react";
 
 interface FlatIconProps {
   src: string;
@@ -8,7 +8,12 @@ interface FlatIconProps {
   className?: string;
 }
 
-export const FlatIcon: React.FC<FlatIconProps> = ({ src, alt, size = 48, className = '' }) => {
+export const FlatIcon: FC<FlatIconProps> = ({
+  src,
+  alt,
+  size = 48,
+  className = "",
+}) => {
   const [failed, setFailed] = useState(false);
 
   if (failed) {
@@ -24,7 +29,7 @@ export const FlatIcon: React.FC<FlatIconProps> = ({ src, alt, size = 48, classNa
       loading="lazy"
       onError={() => setFailed(true)}
       className={className}
-      style={{ width: size, height: size, objectFit: 'contain' }}
+      style={{ width: size, height: size, objectFit: "contain" }}
     />
   );
 };

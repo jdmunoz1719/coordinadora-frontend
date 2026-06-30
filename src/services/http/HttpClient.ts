@@ -6,9 +6,9 @@
  * - Type-safe
  */
 
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios';
-import { apiConfig, RETRY_CONFIG, HTTP_STATUS_CODES } from '@config/api.config';
-import type { ApiError } from '@types/api.types';
+import type { ApiError } from "@/api/api.interface";
+import { apiConfig, HTTP_STATUS_CODES, RETRY_CONFIG } from "@config/api.config";
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 
 export class HttpClient {
   private client: AxiosInstance;
@@ -42,15 +42,13 @@ export class HttpClient {
         }
 
         throw this.transformError(error);
-      }
+      },
     );
   }
 
   private isRetryable(error: AxiosError): boolean {
     const status = error.response?.status;
-    return (
-      !!status && RETRY_CONFIG.retryableStatuses.includes(status)
-    );
+    return !!status && RETRY_CONFIG.retryableStatuses.includes(status);
   }
 
   private calculateBackoffDelay(retryCount: number): number {
@@ -69,25 +67,25 @@ export class HttpClient {
       // Error HTTP
       return {
         status: error.response.status,
-        code: (error.response.data as any)?.code || 'UNKNOWN_ERROR',
+        code: (error.response.data as any)?.code || "UNKNOWN_ERROR",
         message: (error.response.data as any)?.message || error.message,
         details: (error.response.data as any)?.details,
       };
     }
 
-    if (error.code === 'ECONNABORTED') {
+    if (error.code === "ECONNABORTED") {
       return {
         status: HTTP_STATUS_CODES.TIMEOUT,
-        code: 'REQUEST_TIMEOUT',
-        message: 'La solicitud tardó demasiado',
+        code: "REQUEST_TIMEOUT",
+        message: "La solicitud tardó demasiado",
       };
     }
 
     // Error de red u otro
     return {
       status: 0,
-      code: error.code || 'NETWORK_ERROR',
-      message: error.message || 'Error de conexión',
+      code: error.code || "NETWORK_ERROR",
+      message: error.message || "Error de conexión",
     };
   }
 
@@ -101,7 +99,7 @@ export class HttpClient {
   async post<T>(
     url: string,
     data?: unknown,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<T> {
     const response = await this.client.post<T>(url, data, config);
     return response.data;
@@ -110,7 +108,7 @@ export class HttpClient {
   async put<T>(
     url: string,
     data?: unknown,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<T> {
     const response = await this.client.put<T>(url, data, config);
     return response.data;
@@ -119,7 +117,7 @@ export class HttpClient {
   async patch<T>(
     url: string,
     data?: unknown,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<T> {
     const response = await this.client.patch<T>(url, data, config);
     return response.data;

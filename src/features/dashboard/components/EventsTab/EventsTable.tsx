@@ -1,16 +1,14 @@
-import { memo } from 'react';
-import { Activity, Clock } from 'lucide-react';
-import { Card } from '@shared/components/Card';
-import { SeverityBadge } from '@shared/components/Badge';
-import { Paginator } from '@shared/components/Paginator';
-import { EmptyState } from '@shared/components/EmptyState';
-import { LoadingSpinner } from '@shared/components/LoadingSpinner';
-import type { Event } from '@types/dashboard.types';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+﻿import { Event } from "@events/interface/event.interface";
+import { SeverityBadge } from "@shared/components/Badge";
+import { Card } from "@shared/components/Card";
+import { EmptyState } from "@shared/components/EmptyState";
+import { LoadingSpinner } from "@shared/components/LoadingSpinner";
+import { Paginator } from "@shared/components/Paginator";
+import { Activity, Clock } from "lucide-react";
+import { memo } from "react";
 
 interface EventsTableProps {
-  events: Event[];
+  events: Event.ItemList[];
   isLoading?: boolean;
   page: number;
   limit: number;
@@ -19,7 +17,8 @@ interface EventsTableProps {
   onLimitChange: (limit: number) => void;
 }
 
-const th = 'px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500';
+const th =
+  "px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500";
 
 export const EventsTable = memo(function EventsTable({
   events,
@@ -63,15 +62,18 @@ export const EventsTable = memo(function EventsTable({
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {events.map((event) => (
-                  <tr key={event.id} className="hover:bg-slate-50 transition-colors text-sm">
+                  <tr
+                    key={event.id}
+                    className="hover:bg-slate-50 transition-colors text-sm"
+                  >
                     <td className="px-4 py-3 font-medium text-slate-700">
-                      {event.applicationName ?? 'Desconocida'}
+                      {event.applicationName ?? "Desconocida"}
                     </td>
                     <td className="px-4 py-3 text-slate-600">
-                      {event.eventTypeName ?? 'Desconocido'}
+                      {event.eventTypeName ?? "Desconocido"}
                     </td>
                     <td className="px-4 py-3">
-                      <SeverityBadge value={event.severityName} />
+                      <SeverityBadge value={event.severityName} color={event.severityColor} />
                     </td>
                     <td className="px-4 py-3 text-slate-600 max-w-xs truncate">
                       {event.description}
@@ -79,9 +81,7 @@ export const EventsTable = memo(function EventsTable({
                     <td className="px-4 py-3 text-xs text-slate-400">
                       <div className="flex items-center gap-1">
                         <Clock size={12} />
-                        {event.occurredAt
-                          ? formatDistanceToNow(new Date(event.occurredAt), { addSuffix: true, locale: es })
-                          : 'Sin fecha'}
+                        {new Date(event.occurredAt).toLocaleString("es-ES")}
                       </div>
                     </td>
                   </tr>
@@ -92,7 +92,13 @@ export const EventsTable = memo(function EventsTable({
         )}
       </div>
 
-      <Paginator page={page} limit={limit} total={total} onPageChange={onPageChange} onLimitChange={onLimitChange} />
+      <Paginator
+        page={page}
+        limit={limit}
+        total={total}
+        onPageChange={onPageChange}
+        onLimitChange={onLimitChange}
+      />
     </Card>
   );
 });

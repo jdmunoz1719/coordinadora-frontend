@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { ChangeEvent, memo } from "react";
 
 export interface FilterOption {
   id: string | number;
@@ -12,7 +12,8 @@ interface FilterSelectProps {
   onChange: (value: string | number | undefined) => void;
 }
 
-const selectClass = 'px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700 cursor-pointer';
+const selectClass =
+  "w-full sm:w-auto px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700 cursor-pointer";
 
 export const FilterSelect = memo(function FilterSelect({
   label,
@@ -20,14 +21,18 @@ export const FilterSelect = memo(function FilterSelect({
   options,
   onChange,
 }: FilterSelectProps) {
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = e.target.value ? (isNaN(Number(e.target.value)) ? e.target.value : Number(e.target.value)) : undefined;
+  const handleChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value
+      ? isNaN(Number(e.target.value))
+        ? e.target.value
+        : Number(e.target.value)
+      : undefined;
     onChange(val);
   };
 
   return (
     <select
-      value={value ?? ''}
+      value={value ?? ""}
       onChange={handleChange}
       className={selectClass}
       title={label}

@@ -1,17 +1,15 @@
-import { memo, useMemo } from 'react';
-import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
-import { PieChart as PieIcon, PackageOpen } from 'lucide-react';
+import { eventsApi } from '@api/events/events.api';
+import { Event } from '@events/interface/event.interface';
 import { Card } from '@shared/components/Card';
 import { EmptyState } from '@shared/components/EmptyState';
 import { LoadingSpinner } from '@shared/components/LoadingSpinner';
-import { SEVERITY_COLORS } from '@config/constants';
+import { AlertCircle, PackageOpen, PieChart as PieIcon, RefreshCw } from 'lucide-react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
 interface Props {
-  data: Record<string, number>;
-  isLoading?: boolean;
+  refreshSignal?: number;
 }
-
-const ORDER = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'INFO'];
 
 const CustomTooltip = ({ active, payload }: any) => {
   if (!active || !payload?.length) return null;
@@ -36,8 +34,34 @@ const renderLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: an
   );
 };
 
-export const EventsBySeverityChart = memo(function EventsBySeverityChart({ data, isLoading = false }: Props) {
-  const chartData = useMemo(() => ORDER.filter((s) => data[s]).map((s) => ({ name: s, value: data[s] })), [data]);
+export const EventsBySeverityChart = memo(function EventsBySeverityChart({
+  refreshSignal = 0,
+}: Props) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [chartData, setChartData] = useState<Event.TotalBySeverity[]>([]);
+  const lastSignalRef = useRef(-1);
+
+  const load = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await eventsApi.getTotalBySeverity();
+      setChartData((prev) =>
+        JSON.stringify(prev) === JSON.stringify(data) ? prev : data,
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error cargando eventos por severidad');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (lastSignalRef.current === refreshSignal) return;
+    lastSignalRef.current = refreshSignal;
+    load();
+  }, [refreshSignal]);
 
   return (
     <Card>
@@ -47,12 +71,24 @@ export const EventsBySeverityChart = memo(function EventsBySeverityChart({ data,
         </div>
         <div>
           <h3 className="font-semibold text-slate-800">Eventos por Severidad</h3>
-          <p className="text-xs text-slate-400">Distribución actual</p>
+          <p className="text-xs text-slate-400">Total eventos por severidad</p>
         </div>
       </div>
 
       {isLoading ? (
         <LoadingSpinner />
+      ) : error ? (
+        <div className="flex flex-col items-center gap-3 py-10 text-center">
+          <AlertCircle size={28} className="text-red-400" />
+          <p className="text-sm text-slate-500">{error}</p>
+          <button
+            onClick={load}
+            className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+          >
+            <RefreshCw size={13} />
+            Reintentar
+          </button>
+        </div>
       ) : chartData.length === 0 ? (
         <EmptyState icon={<PackageOpen size={28} />} title="Sin datos de severidad" />
       ) : (
@@ -67,10 +103,11 @@ export const EventsBySeverityChart = memo(function EventsBySeverityChart({ data,
               innerRadius={52}
               outerRadius={95}
               paddingAngle={2}
-              dataKey="value"
+              dataKey="totalEvents"
+              nameKey="severityName"
             >
               {chartData.map((entry) => (
-                <Cell key={entry.name} fill={SEVERITY_COLORS[entry.name as keyof typeof SEVERITY_COLORS]} />
+                <Cell key={entry.severityName} fill={entry.color} />
               ))}
             </Pie>
             <Tooltip content={<CustomTooltip />} />
